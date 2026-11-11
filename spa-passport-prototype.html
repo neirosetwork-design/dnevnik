@@ -369,7 +369,6 @@
     .week-item .wi-qty { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 4px; }
     .week-item .wi-qty b { font-family: var(--mono); font-size: 10px; min-width: 16px; text-align: center; }
     .week-item .wi-qty button { width: 18px; height: 20px; font-size: 13px; }
-    .week-item .wi-day { border: 1px solid var(--line); border-radius: 4px; background: var(--canvas); color: var(--ink); font-size: 9px; padding: 2px 3px; max-width: 45px; }
     .week-item button {
       border: 0; background: transparent; color: var(--muted);
       width: 22px; height: 22px; border-radius: 4px; line-height: 1;
@@ -1433,13 +1432,9 @@
           const items = state.week[index].map((item) => {
             const p = byId(item.id);
             if (!p) return '';
-            const dayOptions = DAYS.map((name, dayIndex) => {
-              return '<option value="' + dayIndex + '"' + (dayIndex === index ? ' selected' : '') + '>' + name + '</option>';
-            }).join('');
             return '<div class="week-item"><span class="wi-name">' + escapeHtml(p.name) + '</span><span class="wi-side">' +
               '<span class="wi-qty"><button type="button" data-dec="' + p.id + '" data-day="' + index + '" aria-label="Уменьшить">−</button><b>' + item.qty + '</b><button type="button" data-inc="' + p.id + '" data-day="' + index + '" aria-label="Увеличить">+</button></span>' +
               '<span class="wi-price">' + fmt(priceFor(p.id) * item.qty) + '</span>' +
-              '<select class="wi-day" data-move-day="' + p.id + '" data-from="' + index + '" aria-label="День процедуры">' + dayOptions + '</select>' +
               '<button type="button" data-remove="' + p.id + '" data-day="' + index + '" aria-label="Убрать ' + escapeHtml(p.name) + '">×</button></span></div>';
           }).join('');
           return '<div class="day-row' + (state.activeDay === index ? ' is-active' : '') + '" data-day-row="' + index + '"><div class="day-label">' + day + '</div><div class="day-items">' + (items || '<span class="week-empty">—</span>') + '</div></div>';
@@ -1583,22 +1578,6 @@
         if (!item) return;
         item.qty = Math.max(0, item.qty + delta);
         if (item.qty === 0) state.week[day] = state.week[day].filter((entry) => entry.id !== id);
-        persist();
-        renderLibrary();
-        renderWeek();
-        renderPassport();
-      }
-
-      function moveProcedure(id, fromDay, toDay) {
-        if (fromDay === toDay) return;
-        const source = state.week[fromDay] || [];
-        const item = source.find((entry) => entry.id === id);
-        if (!item) return;
-        state.week[fromDay] = source.filter((entry) => entry.id !== id);
-        const target = state.week[toDay] || (state.week[toDay] = []);
-        const existing = target.find((entry) => entry.id === id);
-        if (existing) existing.qty += item.qty;
-        else target.push(item);
         persist();
         renderLibrary();
         renderWeek();
@@ -1798,12 +1777,6 @@
           renderDayPicker();
           renderWeek();
         }
-      });
-
-      $('weekList').addEventListener('change', function (event) {
-        const select = event.target.closest('[data-move-day]');
-        if (!select) return;
-        moveProcedure(select.getAttribute('data-move-day'), Number(select.getAttribute('data-from')), Number(select.value));
       });
 
       // Event: budget
