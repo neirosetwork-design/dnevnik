@@ -154,7 +154,7 @@
 
     /* ---------- CONTROLS ---------- */
     .controls {
-      display: grid; grid-template-columns: 1.05fr 0.55fr 0.95fr 0.85fr 1.35fr; gap: 12px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;
       padding: 16px; border: 1px solid var(--line);
       background: var(--surface); border-radius: var(--radius);
     }
@@ -163,12 +163,14 @@
       font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--muted);
     }
-    .field select, .field input[type="text"], .field input[type="search"], .field input[type="number"] {
+    .field select, .field input[type="text"], .field input[type="search"], .field input[type="number"], .field input[type="date"] {
       width: 100%; border: 1px solid var(--line); background: var(--canvas);
       color: var(--ink); border-radius: 8px; padding: 9px 11px;
       font-size: 13.5px; font-weight: 500; min-height: 40px;
     }
     .field input[type="number"] { text-align: center; }
+    .field input[type="date"] { text-align: left; }
+    .field.hotel-field { grid-column: span 2; }
     .budget-field { display: flex; flex-direction: column; justify-content: flex-end; }
     .budget-output {
       display: flex; align-items: baseline; justify-content: space-between;
@@ -363,7 +365,11 @@
     }
     .week-item .wi-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .week-item .wi-side { display: flex; align-items: center; gap: 2px; flex: none; }
-    .week-item .wi-price { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
+    .week-item .wi-price { font-family: var(--mono); font-size: 9.5px; color: var(--muted); white-space: nowrap; }
+    .week-item .wi-qty { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 4px; }
+    .week-item .wi-qty b { font-family: var(--mono); font-size: 10px; min-width: 16px; text-align: center; }
+    .week-item .wi-qty button { width: 18px; height: 20px; font-size: 13px; }
+    .week-item .wi-day { border: 1px solid var(--line); border-radius: 4px; background: var(--canvas); color: var(--ink); font-size: 9px; padding: 2px 3px; max-width: 45px; }
     .week-item button {
       border: 0; background: transparent; color: var(--muted);
       width: 22px; height: 22px; border-radius: 4px; line-height: 1;
@@ -375,6 +381,7 @@
     .budget-line { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; margin-bottom: 7px; }
     .budget-line span { color: var(--muted); }
     .budget-line strong { font-weight: 700; }
+    .budget-line strong.is-over { color: var(--danger); }
     .budget-line.total { border-top: 1px solid var(--line); margin-top: 9px; padding-top: 9px; }
     .budget-line.total strong { font-size: 16px; }
     .meter { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; margin: 8px 0 5px; }
@@ -589,7 +596,8 @@
 
     /* ---------- RESPONSIVE ---------- */
     @media (max-width: 980px) {
-      .controls { grid-template-columns: 1.2fr 0.6fr 1fr 1fr; }
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .field.hotel-field { grid-column: span 2; }
       .budget-field { grid-column: 1 / -1; }
       .workspace { grid-template-columns: 1fr; }
       .week { position: static; }
@@ -639,6 +647,7 @@
       .brand { font-size: 16.5px; }
       .nav-reset { padding: 6px 8px; font-size: 10.5px; }
       .controls { grid-template-columns: 1fr; }
+      .field.hotel-field { grid-column: span 1; }
       .budget-field { grid-column: auto; }
       .proc-grid { grid-template-columns: 1fr 1fr; }
       .proc-card { min-height: 150px; }
@@ -698,27 +707,30 @@
               <option>Сочи</option>
             </select>
           </div>
+          <div class="field hotel-field">
+            <label for="hotelSearch">Отель</label>
+            <input id="hotelSearch" type="text" list="hotelOptions" placeholder="Начните вводить название отеля" autocomplete="off" />
+            <datalist id="hotelOptions"></datalist>
+          </div>
+          <div class="field">
+            <label for="checkIn">Заезд</label>
+            <input id="checkIn" type="date" />
+          </div>
+          <div class="field">
+            <label for="checkOut">Выезд</label>
+            <input id="checkOut" type="date" />
+          </div>
           <div class="field">
             <label for="nights">Ночей</label>
-            <input type="number" id="nights" min="1" max="21" step="1" value="5" inputmode="numeric" />
+            <input id="nights" type="text" readonly aria-readonly="true" />
           </div>
           <div class="field">
-            <label for="when">Когда</label>
-            <select id="when">
-              <option>Ближайший месяц</option>
-              <option>Через 1–2 месяца</option>
-              <option>Через 3+ месяца</option>
-              <option>Пока не знаю</option>
-            </select>
+            <label for="adults">Взрослых</label>
+            <input id="adults" type="text" inputmode="numeric" value="2" autocomplete="off" />
           </div>
           <div class="field">
-            <label for="who">С кем</label>
-            <select id="who">
-              <option>Одна</option>
-              <option>Пара</option>
-              <option>С семьёй</option>
-              <option>С родителями</option>
-            </select>
+            <label for="children">Детей</label>
+            <input id="children" type="text" inputmode="numeric" value="0" autocomplete="off" />
           </div>
           <div class="field budget-field">
             <div class="budget-output">
@@ -733,7 +745,7 @@
         <div class="hotel-section">
           <div class="section-head">
             <h2 style="font-family:var(--display);font-weight:400;font-size:30px;line-height:1.05;letter-spacing:-0.02em;margin:0;">Отель</h2>
-            <span class="micro" id="hotelCount">9 вариантов · демо-цены</span>
+            <span class="micro" id="hotelCount">9 вариантов</span>
           </div>
           <div class="hotel-grid" id="hotelGrid" aria-live="polite"></div>
         </div>
@@ -771,10 +783,12 @@
             <div class="week-list" id="weekList"></div>
 
             <div class="budget-box">
-              <div class="budget-line"><span>Бюджет</span><strong id="budgetValue">60 000 ₽</strong></div>
+              <div class="budget-line"><span>Бюджет на 1</span><strong id="budgetValue">60 000 ₽</strong></div>
+              <div class="budget-line"><span id="budgetGroupLabel">Бюджет на 1</span><strong id="budgetGroupValue">60 000 ₽</strong></div>
               <div class="budget-line"><span id="hotelLineLabel">Отель · 5 ночей</span><strong id="hotelLine">34 500 ₽</strong></div>
-              <div class="budget-line"><span>Процедуры</span><strong id="procLine">0 ₽</strong></div>
+              <div class="budget-line"><span id="procLineLabel">Процедуры</span><strong id="procLine">0 ₽</strong></div>
               <div class="budget-line total"><span>Итого</span><strong id="totalValue">34 500 ₽</strong></div>
+              <div class="budget-line"><span>Осталось</span><strong id="budgetLeft">25 500 ₽</strong></div>
               <div class="meter" aria-hidden="true"><div class="meter-fill" id="meterFill"></div></div>
               <p class="status" id="budgetStatus" aria-live="polite">Добавьте процедуры — и здесь появится расчёт.</p>
             </div>
@@ -782,7 +796,6 @@
             <div class="week-actions">
               <button class="btn-primary" id="saveBtn" type="button">Сохранить в дневник <span class="arrow">→</span></button>
               <button class="btn-secondary" id="clearBtn" type="button">Очистить неделю</button>
-              <p class="week-note">Отели — демо-цены. Дневник бесплатный: сохранение после подписки на канал, в демо это одна кнопка.</p>
             </div>
           </aside>
         </div>
@@ -860,7 +873,6 @@
     </div>
 
     <footer class="footer">
-      <p>Прототип «Дневника ритуалов». Цены отелей и процедур — демонстрационные, не оферта. Оплата не подключена. Данные хранятся только в этом браузере.</p>
       <div class="footer-actions">
         <a href="spa-passport-hotel-admin.html">Кабинет отеля →</a>
         <button id="resetFooter" type="button">Сбросить демо-данные</button>
@@ -948,8 +960,9 @@
         { id: 'hotel-lotte', city: 'Москва', name: 'LOTTE Hotel Moscow 5*', type: 'спа-отель', price: 26000, includes: 'проживание, завтрак, Mandara Spa', note: 'демо' },
         { id: 'hotel-podmoskovye', city: 'Подмосковье', name: 'Санаторий «Подмосковье»', type: 'санаторий', price: 9800, includes: 'проживание, 3-разовое питание, лечение', note: 'демо' },
         { id: 'hotel-mantra', city: 'Сочи', name: 'Отель «Мантра»', type: 'йога-отель', price: 2300, includes: 'проживание, вегетарианское питание, йога', note: 'демо' },
-        { id: 'hotel-none', city: 'any', name: 'Без отеля', type: 'только процедуры', price: 0, includes: 'приезжаете на процедуры, проживание своё', note: 'демо' }
+        { id: 'hotel-none', city: 'any', name: 'Без проживания', type: 'только процедуры', price: 0, includes: 'Проживание не входит: приезжаете на процедуры', note: 'демо' }
       ];
+      HOTELS.forEach(function (hotel) { if (!hotel.priceUnit) hotel.priceUnit = 'room'; });
 
       // Hotels approved in the hotel cabinet appear here without editing this file.
       // The cabinet writes the same key from spa-passport-hotel-admin.html.
@@ -1009,6 +1022,7 @@
             name: hotel.name || 'Отель без названия',
             type: hotel.type || 'спа-отель',
             price: Number(hotel.price) || 0,
+            priceUnit: hotel.priceUnit || 'room',
             includes: hotel.includes || 'проживание',
             note: 'от отеля',
             image: hotel.image || '',
@@ -1064,13 +1078,46 @@
         { city: 'Сочи', hotel: 'Отель «Мантра»', nights: 7, when: 'январь 2026', dateLabel: 'январь 2026', items: ['body-02', 'face-01', 'water-06', 'move-01'], total: 21350 }
       ];
 
+      function isoAfter(days) {
+        const date = new Date();
+        date.setHours(12, 0, 0, 0);
+        date.setDate(date.getDate() + Number(days || 0));
+        return date.toISOString().slice(0, 10);
+      }
+
+      function nightsBetween(checkIn, checkOut) {
+        const start = new Date(checkIn + 'T12:00:00');
+        const end = new Date(checkOut + 'T12:00:00');
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+        return Math.max(0, Math.round((end - start) / 86400000));
+      }
+
+      function isoPlus(checkIn, days) {
+        const date = new Date(String(checkIn) + 'T12:00:00');
+        if (isNaN(date.getTime())) return isoAfter(days);
+        date.setDate(date.getDate() + Number(days || 0));
+        return date.toISOString().slice(0, 10);
+      }
+
+      function shortDate(iso) {
+        const date = new Date(String(iso) + 'T12:00:00');
+        return isNaN(date.getTime()) ? '' : date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+      }
+
+      function capitalizeFirst(value) {
+        const text = String(value || '');
+        return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+      }
+
       const DEFAULT_STATE = {
         view: 'constructor',
         city: 'Белокуриха',
         hotel: 'hotel-ru',
+        checkIn: isoAfter(30),
+        checkOut: isoAfter(35),
         nights: 5,
-        when: 'Ближайший месяц',
-        who: 'Одна',
+        adults: 2,
+        children: 0,
         budget: 60000,
         activeDay: 0,
         week: [[], [], [], [], [], [], []],
@@ -1086,6 +1133,9 @@
       if (deepHotelId && hotelById(deepHotelId)) {
         state.hotel = deepHotelId;
         state.city = hotelById(deepHotelId).city;
+      }
+      function guestsCount() {
+        return Math.max(1, (Number(state.adults) || 1) + (Number(state.children) || 0));
       }
       let filter = 'all';
       let search = '';
@@ -1145,19 +1195,32 @@
         if (!Array.isArray(s.week) || s.week.length !== 7) {
           s.week = [[], [], [], [], [], [], []];
         } else {
-          s.week = s.week.map((day) => Array.isArray(day) ? day.filter((id) => Boolean(byId(id))) : []);
+          s.week = s.week.map((day) => {
+            if (!Array.isArray(day)) return [];
+            return day.map((item) => {
+              if (typeof item === 'string') return { id: item, qty: 1 };
+              if (item && item.id) return { id: item.id, qty: Math.max(1, Math.min(99, Number(item.qty) || 1)) };
+              return null;
+            }).filter((item) => item && byId(item.id));
+          });
         }
         if (!Array.isArray(s.stamps)) s.stamps = [];
         s.stamps = Array.from(new Set(s.stamps.filter((id) => Boolean(byId(id)))));
         if (!Array.isArray(s.trips)) s.trips = [];
         s.budget = Number(s.budget) || 60000;
-        s.nights = Math.min(21, Math.max(1, Number(s.nights) || 5));
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s.checkIn || ''))) s.checkIn = isoAfter(30);
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s.checkOut || ''))) s.checkOut = isoAfter(35);
+        if (nightsBetween(s.checkIn, s.checkOut) < 1) s.checkOut = isoAfter(35);
+        if (nightsBetween(s.checkIn, s.checkOut) > 21) s.checkOut = isoPlus(s.checkIn, 21);
+        s.nights = Math.min(21, Math.max(1, nightsBetween(s.checkIn, s.checkOut) || 5));
+        s.adults = Math.min(8, Math.max(1, Number(s.adults) || 2));
+        s.children = Math.min(6, Math.max(0, Number(s.children) || 0));
         if (!hotelById(s.hotel) || (hotelById(s.hotel).city !== s.city && s.hotel !== 'hotel-none')) {
           const firstForCity = HOTELS.find((h) => h.city === s.city) || HOTELS[0];
           s.hotel = firstForCity.id;
         }
         const available = proceduresForHotel(s.hotel).map((p) => p.id);
-        s.week = s.week.map((day) => day.filter((id) => available.indexOf(id) !== -1));
+        s.week = s.week.map((day) => day.filter((item) => available.indexOf(item.id) !== -1));
         s.activeDay = Math.min(6, Math.max(0, Number(s.activeDay) || 0));
         return s;
       }
@@ -1190,19 +1253,24 @@
 
       function totalOfWeek() {
         return state.week.reduce((sum, day) => {
-          return sum + day.reduce((daySum, id) => {
-            const p = byId(id);
-            return daySum + (p ? priceFor(id) : 0);
+          return sum + day.reduce((daySum, item) => {
+            const p = byId(item.id);
+            return daySum + (p ? priceFor(item.id) * item.qty : 0);
           }, 0);
         }, 0);
       }
 
       function countOfWeek() {
-        return state.week.reduce((sum, day) => sum + day.length, 0);
+        return state.week.reduce((sum, day) => sum + day.reduce((daySum, item) => daySum + item.qty, 0), 0);
       }
 
       function isInWeek(id) {
-        return state.week.some((day) => day.indexOf(id) !== -1);
+        return state.week.some((day) => day.some((item) => item.id === id));
+      }
+
+      function qtyInDay(dayIndex, id) {
+        const item = state.week[dayIndex] && state.week[dayIndex].find((entry) => entry.id === id);
+        return item ? item.qty : 0;
       }
 
       function getLevel(count) {
@@ -1234,13 +1302,13 @@
         }
 
         $('procGrid').innerHTML = list.map((p) => {
-          const added = isInWeek(p.id);
+          const inPlan = isInWeek(p.id);
           return '<article class="proc-card">' +
             '<div class="proc-top"><span class="proc-icon">' + ICONS[p.icon] + '</span><span class="proc-cat">' + p.cat + '</span></div>' +
             '<h3>' + p.name + '</h3>' +
             '<div class="proc-meta">' + durationFor(p.id) + ' мин</div>' +
             '<div class="proc-bottom"><span class="price">' + fmt(priceFor(p.id)) + '</span>' +
-            '<button type="button" class="add-btn" data-add="' + p.id + '"' + (added ? ' disabled' : '') + '>' + (added ? 'В плане' : 'Добавить') + '</button></div>' +
+            '<button type="button" class="add-btn" data-add="' + p.id + '">' + (inPlan ? 'Добавить ещё' : 'Добавить') + '</button></div>' +
             '</article>';
         }).join('');
       }
@@ -1257,23 +1325,29 @@
 
       function hotelCost() {
         const hotel = hotelById(state.hotel);
-        return hotel ? hotel.price * state.nights : 0;
+        if (!hotel) return 0;
+        const unit = hotel.priceUnit === 'person' ? guestsCount() : 1;
+        return hotel.price * state.nights * unit;
+      }
+
+      function proceduresCost() {
+        return totalOfWeek() * guestsCount();
       }
 
       function tripTotal() {
-        return hotelCost() + totalOfWeek();
+        return hotelCost() + proceduresCost();
       }
 
       function renderHotels() {
         const list = hotelsForCity(state.city);
-        const hasPublished = list.some(function (hotel) { return hotel.note === 'от отеля'; });
-        $('hotelCount').textContent = list.length + ' ' + plural(list.length, 'вариант', 'варианта', 'вариантов') + ' · ' + (hasPublished ? 'цены отелей' : 'демо-цены');
+        $('hotelCount').textContent = list.length + ' ' + plural(list.length, 'вариант', 'варианта', 'вариантов');
         $('hotelGrid').innerHTML = list.map((hotel) => {
           const selected = state.hotel === hotel.id;
-          const price = hotel.price === 0 ? 'без проживания' : '<b>' + fmt(hotel.price) + '</b> / ночь';
+          const priceUnit = hotel.priceUnit === 'person' ? 'за человека' : 'за номер';
+          const price = hotel.price === 0 ? 'Без проживания' : 'Стоимость: <b>' + fmt(hotel.price) + '</b> / ночь · ' + priceUnit;
           const photo = hotel.image ? '<span class="hotel-photo"><img src="' + escapeHtml(hotel.image) + '" alt=""></span>' : '';
           const badge = escapeHtml(hotel.type) + (hotel.note === 'от отеля' ? ' · от отеля' : '');
-          const includes = escapeHtml(hotel.includes) + (hotel.proceduresCount
+          const includes = escapeHtml(capitalizeFirst(hotel.includes)) + (hotel.proceduresCount
             ? ' · ' + hotel.proceduresCount + ' ' + plural(hotel.proceduresCount, 'процедура', 'процедуры', 'процедур') + ' в прайсе отеля'
             : '');
           return '<button type="button" class="hotel-card' + (selected ? ' is-selected' : '') + '" data-hotel="' + escapeHtml(hotel.id) + '" aria-pressed="' + selected + '">' +
@@ -1286,44 +1360,87 @@
         }).join('');
       }
 
+      function renderHotelOptions() {
+        $('hotelOptions').innerHTML = hotelsForCity(state.city).map((hotel) => {
+          return '<option value="' + escapeHtml(hotel.name) + '">' + escapeHtml(hotel.city) + '</option>';
+        }).join('');
+      }
+
+      function selectHotel(id) {
+        const hotel = hotelById(id);
+        if (!hotel) return;
+        state.hotel = hotel.id;
+        if (hotel.id !== 'hotel-none') state.city = hotel.city;
+        const allowed = proceduresForHotel(state.hotel).map((p) => p.id);
+        const before = countOfWeek();
+        state.week = state.week.map((day) => day.filter((item) => allowed.indexOf(item.id) !== -1));
+        const removed = before - countOfWeek();
+        persist();
+        $('hotelSearch').value = hotel.name;
+        $('city').value = state.city;
+        renderHotelOptions();
+        renderHotels();
+        renderLibrary();
+        renderWeek();
+        if (removed) showToast('Из недели убраны процедуры, которых нет в этом отеле');
+      }
+
       function renderWeek() {
-        const proceduresTotal = totalOfWeek();
+        const proceduresTotal = proceduresCost();
         const hotel = hotelById(state.hotel);
         const hotelTotal = hotelCost();
         const total = tripTotal();
         const count = countOfWeek();
+        const guests = guestsCount();
+        const budgetTotal = state.budget * guests;
+        const left = budgetTotal - total;
 
         $('weekCount').textContent = count + ' ' + plural(count, 'процедура', 'процедуры', 'процедур');
-        $('weekHotel').textContent = hotel ? hotel.name + ' · ' + state.nights + ' ' + plural(state.nights, 'ночь', 'ночи', 'ночей') : 'Без отеля';
+        $('weekHotel').textContent = hotel ? hotel.name + ' · ' + state.nights + ' ' + plural(state.nights, 'ночь', 'ночи', 'ночей') : 'Без проживания';
         $('mobileCount').textContent = count + ' ' + plural(count, 'процедура', 'процедуры', 'процедур');
         $('mobileTotal').textContent = fmt(total);
         $('budgetValue').textContent = fmt(state.budget);
         $('budgetOut').textContent = fmt(state.budget);
-        $('hotelLineLabel').textContent = 'Отель · ' + state.nights + ' ' + plural(state.nights, 'ночь', 'ночи', 'ночей');
+        $('budgetGroupLabel').parentElement.style.display = guests === 1 ? 'none' : '';
+        $('budgetGroupLabel').textContent = 'Бюджет на ' + guests;
+        $('budgetGroupValue').textContent = fmt(budgetTotal);
+        $('hotelLineLabel').textContent = hotel && hotel.price > 0
+          ? 'Отель · ' + state.nights + ' ' + plural(state.nights, 'ночь', 'ночи', 'ночей') + ' · ' + (hotel.priceUnit === 'person' ? 'за человека' : 'за номер')
+          : 'Без проживания';
         $('hotelLine').textContent = hotel ? fmt(hotelTotal) : '0 ₽';
+        $('procLineLabel').textContent = 'Процедуры' + (guests > 1 ? ' на ' + guests : '');
         $('procLine').textContent = fmt(proceduresTotal);
         $('totalValue').textContent = fmt(total);
+        $('budgetLeft').textContent = fmt(left);
+        $('budgetLeft').classList.toggle('is-over', left < 0);
 
-        const pct = state.budget > 0 ? Math.min(100, (total / state.budget) * 100) : 0;
+        const pct = budgetTotal > 0 ? Math.min(100, (total / budgetTotal) * 100) : 0;
         $('meterFill').style.width = pct + '%';
-        $('meterFill').classList.toggle('is-over', total > state.budget);
-        $('budgetStatus').classList.toggle('is-over', total > state.budget);
+        $('meterFill').classList.toggle('is-over', total > budgetTotal);
+        $('budgetStatus').classList.toggle('is-over', total > budgetTotal);
 
         if (count === 0) {
           $('budgetStatus').textContent = 'Добавьте процедуры — и здесь появится расчёт.';
-        } else if (total > state.budget) {
-          $('budgetStatus').textContent = 'Перебор на ' + fmt(total - state.budget) + '. Уберите одну процедуру или поднимите бюджет.';
+        } else if (total > budgetTotal) {
+          $('budgetStatus').textContent = 'Перебор на ' + fmt(total - budgetTotal) + '. Уберите одну процедуру или поднимите бюджет.';
         } else {
-          $('budgetStatus').textContent = 'В бюджете. Осталось ' + fmt(state.budget - total) + '.';
+          $('budgetStatus').textContent = 'В бюджете. Осталось ' + fmt(left) + '.';
         }
 
         $('saveBtn').disabled = count === 0;
 
         $('weekList').innerHTML = DAYS.map((day, index) => {
-          const items = state.week[index].map((id) => {
-            const p = byId(id);
+          const items = state.week[index].map((item) => {
+            const p = byId(item.id);
             if (!p) return '';
-            return '<div class="week-item"><span class="wi-name">' + p.name + '</span><span class="wi-side"><span class="wi-price">' + fmt(priceFor(p.id)) + '</span><button type="button" data-remove="' + p.id + '" aria-label="Убрать ' + p.name + '">×</button></span></div>';
+            const dayOptions = DAYS.map((name, dayIndex) => {
+              return '<option value="' + dayIndex + '"' + (dayIndex === index ? ' selected' : '') + '>' + name + '</option>';
+            }).join('');
+            return '<div class="week-item"><span class="wi-name">' + escapeHtml(p.name) + '</span><span class="wi-side">' +
+              '<span class="wi-qty"><button type="button" data-dec="' + p.id + '" data-day="' + index + '" aria-label="Уменьшить">−</button><b>' + item.qty + '</b><button type="button" data-inc="' + p.id + '" data-day="' + index + '" aria-label="Увеличить">+</button></span>' +
+              '<span class="wi-price">' + fmt(priceFor(p.id) * item.qty) + '</span>' +
+              '<select class="wi-day" data-move-day="' + p.id + '" data-from="' + index + '" aria-label="День процедуры">' + dayOptions + '</select>' +
+              '<button type="button" data-remove="' + p.id + '" data-day="' + index + '" aria-label="Убрать ' + escapeHtml(p.name) + '">×</button></span></div>';
           }).join('');
           return '<div class="day-row' + (state.activeDay === index ? ' is-active' : '') + '" data-day-row="' + index + '"><div class="day-label">' + day + '</div><div class="day-items">' + (items || '<span class="week-empty">—</span>') + '</div></div>';
         }).join('');
@@ -1440,6 +1557,9 @@
         renderLibrary();
         renderDayPicker();
         renderHotels();
+        renderHotelOptions();
+        const selectedHotel = hotelById(state.hotel);
+        $('hotelSearch').value = selectedHotel ? selectedHotel.name : '';
         renderWeek();
         renderPassport();
         applyView();
@@ -1447,20 +1567,49 @@
 
       function addProcedure(id) {
         if (!byId(id)) return;
-        if (isInWeek(id)) {
-          showToast('Эта процедура уже в плане');
-          return;
-        }
-        state.week[state.activeDay].push(id);
+        const day = state.activeDay;
+        const existing = state.week[day].find((item) => item.id === id);
+        if (existing) existing.qty += 1;
+        else state.week[day].push({ id: id, qty: 1 });
         persist();
         renderLibrary();
         renderWeek();
         renderPassport();
-        showToast('Добавлено: ' + byId(id).name + ' · ' + DAYS[state.activeDay]);
+        showToast('Добавлено: ' + byId(id).name + ' · ' + DAYS[day] + (existing ? ' · ' + existing.qty + ' шт.' : ''));
       }
 
-      function removeProcedure(id) {
-        state.week = state.week.map((day) => day.filter((item) => item !== id));
+      function changeQty(day, id, delta) {
+        const item = state.week[day] && state.week[day].find((entry) => entry.id === id);
+        if (!item) return;
+        item.qty = Math.max(0, item.qty + delta);
+        if (item.qty === 0) state.week[day] = state.week[day].filter((entry) => entry.id !== id);
+        persist();
+        renderLibrary();
+        renderWeek();
+        renderPassport();
+      }
+
+      function moveProcedure(id, fromDay, toDay) {
+        if (fromDay === toDay) return;
+        const source = state.week[fromDay] || [];
+        const item = source.find((entry) => entry.id === id);
+        if (!item) return;
+        state.week[fromDay] = source.filter((entry) => entry.id !== id);
+        const target = state.week[toDay] || (state.week[toDay] = []);
+        const existing = target.find((entry) => entry.id === id);
+        if (existing) existing.qty += item.qty;
+        else target.push(item);
+        persist();
+        renderLibrary();
+        renderWeek();
+        renderPassport();
+      }
+
+      function removeProcedure(id, day) {
+        state.week = state.week.map((items, index) => {
+          if (day != null && index !== day) return items;
+          return items.filter((item) => item.id !== id);
+        });
         persist();
         renderLibrary();
         renderWeek();
@@ -1494,8 +1643,14 @@
       }
 
       function commitWeek() {
-        const ids = state.week.reduce((all, day) => all.concat(day), []);
-        const proceduresTotal = totalOfWeek();
+        const ids = state.week.reduce((all, day) => all.concat(day.map((item) => item.id)), []);
+        const quantities = state.week.reduce((all, day) => {
+          day.forEach((item) => {
+            for (let i = 0; i < item.qty; i += 1) all.push(item.id);
+          });
+          return all;
+        }, []);
+        const proceduresTotal = proceduresCost();
         const total = tripTotal();
         const hotel = hotelById(state.hotel);
         const before = state.stamps.length;
@@ -1504,11 +1659,12 @@
         const addedStamps = state.stamps.length - before;
         state.trips.unshift({
           city: state.city,
-          hotel: hotel ? hotel.name : 'Без отеля',
+          hotel: hotel ? hotel.name : 'Без проживания',
           nights: state.nights,
-          when: state.when,
-          dateLabel: new Date().toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' }),
-          items: ids.slice(),
+          checkIn: state.checkIn,
+          checkOut: state.checkOut,
+          dateLabel: shortDate(state.checkIn) + '–' + shortDate(state.checkOut),
+          items: quantities,
           proceduresTotal: proceduresTotal,
           total: total
         });
@@ -1591,18 +1747,17 @@
       $('hotelGrid').addEventListener('click', function (event) {
         const card = event.target.closest('[data-hotel]');
         if (!card) return;
-        state.hotel = card.getAttribute('data-hotel');
-        const allowed = proceduresForHotel(state.hotel).map((p) => p.id);
-        const before = countOfWeek();
-        state.week = state.week.map((day) => day.filter((id) => allowed.indexOf(id) !== -1));
-        const removed = before - countOfWeek();
-        persist();
-        renderHotels();
-        renderLibrary();
-        renderWeek();
-        const hotel = hotelById(state.hotel);
-        if (hotel) {
-          showToast('Выбран отель: ' + hotel.name + (removed ? '. Из недели убраны процедуры, которых нет в этом отеле' : ''));
+        selectHotel(card.getAttribute('data-hotel'));
+      });
+
+      // Event: hotel search
+      $('hotelSearch').addEventListener('change', function (event) {
+        const value = String(event.target.value || '').trim().toLowerCase();
+        const hotel = HOTELS.find((item) => item.name.toLowerCase() === value);
+        if (hotel) selectHotel(hotel.id);
+        else {
+          const selected = hotelById(state.hotel);
+          event.target.value = selected ? selected.name : '';
         }
       });
 
@@ -1618,10 +1773,22 @@
 
       // Event: week remove / day selection
       $('weekList').addEventListener('click', function (event) {
+        const decBtn = event.target.closest('[data-dec]');
+        if (decBtn) {
+          event.stopPropagation();
+          changeQty(Number(decBtn.getAttribute('data-day')), decBtn.getAttribute('data-dec'), -1);
+          return;
+        }
+        const incBtn = event.target.closest('[data-inc]');
+        if (incBtn) {
+          event.stopPropagation();
+          changeQty(Number(incBtn.getAttribute('data-day')), incBtn.getAttribute('data-inc'), 1);
+          return;
+        }
         const removeBtn = event.target.closest('[data-remove]');
         if (removeBtn) {
           event.stopPropagation();
-          removeProcedure(removeBtn.getAttribute('data-remove'));
+          removeProcedure(removeBtn.getAttribute('data-remove'), Number(removeBtn.getAttribute('data-day')));
           return;
         }
         const row = event.target.closest('[data-day-row]');
@@ -1633,6 +1800,12 @@
         }
       });
 
+      $('weekList').addEventListener('change', function (event) {
+        const select = event.target.closest('[data-move-day]');
+        if (!select) return;
+        moveProcedure(select.getAttribute('data-move-day'), Number(select.getAttribute('data-from')), Number(select.value));
+      });
+
       // Event: budget
       $('budget').addEventListener('input', function (event) {
         state.budget = Number(event.target.value);
@@ -1640,16 +1813,44 @@
         renderWeek();
       });
 
-      // Event: nights
-      $('nights').addEventListener('input', function (event) {
-        const value = Math.min(21, Math.max(1, Number(event.target.value) || 1));
-        state.nights = value;
-        event.target.value = value;
+      // Event: dates and guests
+      function syncDates() {
+        let nights = nightsBetween(state.checkIn, state.checkOut);
+        if (nights < 1) {
+          state.checkOut = isoPlus(state.checkIn, 5);
+          nights = 5;
+        } else if (nights > 21) {
+          state.checkOut = isoPlus(state.checkIn, 21);
+          nights = 21;
+        }
+        state.nights = nights;
+        $('checkOut').value = state.checkOut;
+        $('nights').value = state.nights;
+        persist();
+        renderWeek();
+      }
+      $('checkIn').addEventListener('change', function (event) {
+        state.checkIn = event.target.value;
+        syncDates();
+      });
+      $('checkOut').addEventListener('change', function (event) {
+        state.checkOut = event.target.value;
+        syncDates();
+      });
+      $('adults').addEventListener('input', function (event) {
+        state.adults = Math.min(8, Math.max(1, Number(event.target.value) || 1));
+        if (event.target.value !== String(state.adults)) event.target.value = state.adults;
+        persist();
+        renderWeek();
+      });
+      $('children').addEventListener('input', function (event) {
+        state.children = Math.min(6, Math.max(0, Number(event.target.value) || 0));
+        if (event.target.value !== String(state.children)) event.target.value = state.children;
         persist();
         renderWeek();
       });
 
-      // Event: city / when / who
+      // Event: city
       $('city').addEventListener('change', function (event) {
         state.city = event.target.value;
         const current = hotelById(state.hotel);
@@ -1658,11 +1859,12 @@
           state.hotel = firstForCity ? firstForCity.id : 'hotel-none';
         }
         persist();
+        const selected = hotelById(state.hotel);
+        $('hotelSearch').value = selected ? selected.name : '';
+        renderHotelOptions();
         renderHotels();
         renderWeek();
       });
-      $('when').addEventListener('change', function (event) { state.when = event.target.value; persist(); });
-      $('who').addEventListener('change', function (event) { state.who = event.target.value; persist(); });
 
       // Event: save / clear
       $('saveBtn').addEventListener('click', saveWeek);
@@ -1723,8 +1925,12 @@
       });
       $('city').value = state.city;
       $('nights').value = state.nights;
-      $('when').value = state.when;
-      $('who').value = state.who;
+      $('checkIn').value = state.checkIn;
+      $('checkOut').value = state.checkOut;
+      $('adults').value = state.adults;
+      $('children').value = state.children;
+      const initialHotel = hotelById(state.hotel);
+      $('hotelSearch').value = initialHotel ? initialHotel.name : '';
       $('budget').value = state.budget;
       $('budgetOut').textContent = fmt(state.budget);
 

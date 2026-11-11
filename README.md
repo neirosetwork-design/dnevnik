@@ -24,13 +24,13 @@
 Адрес будет таким:
 
 ```text
-https://USERNAME.github.io/spa-diary/
+https://neirosetwork-design.github.io/dnevnik/
 ```
 
 Калькулятор:
 
 ```text
-https://USERNAME.github.io/spa-diary/?hotel=hotel-ru#calculator
+https://neirosetwork-design.github.io/dnevnik/?hotel=hotel-ru#calculator
 ```
 
 ## Ссылка для поста
@@ -38,7 +38,7 @@ https://USERNAME.github.io/spa-diary/?hotel=hotel-ru#calculator
 Подставьте адрес GitHub Pages в backend:
 
 ```env
-CALCULATOR_URL=https://USERNAME.github.io/spa-diary/
+CALCULATOR_URL=https://neirosetwork-design.github.io/dnevnik/
 ```
 
 Backend сам добавит:
