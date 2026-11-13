@@ -1,1 +1,0 @@
-window.SPA_PUBLISHED_HOTELS = [];
